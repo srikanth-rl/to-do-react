@@ -1,41 +1,44 @@
-import { useEffect, useState } from 'react';
 import './styles.css';
-export default function App() {
-  const [newItem, setNewItem] = useState("")
-  const [todos, setToDos] = useState(() => {
-    let localValue = localStorage.getItem("Items")
-    if (localValue === null) return []
-    return JSON.parse(localValue)
-  })
-  useEffect(() => {
-    localStorage.setItem("Items", JSON.stringify(todos))
-  }, [todos])
-  let handleSubmit = (e: { preventDefault: () => void; }) => {
+import { useState } from 'react';
+
+interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export default function App(): JSX.Element {
+  const [newItem, setNewItem] = useState<string>("");
+  const [todos, setToDos] = useState<Todo[]>([]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setToDos(currentToDos => {
+    setToDos((currentToDos: Todo[]) => {
       return [
         ...currentToDos, {
-          id: crypto
-            .randomUUID(), title: newItem, completed: false
+          id: Math.random().toString(36).substr(2, 9),
+          title: newItem,
+          completed: false
         },
       ]
+    });
+    setNewItem("");
+  };
 
-    })
-    setNewItem("")
-  }
-  function toggleToDo(id, completed) {
-    setToDos(currentToDos => {
+  function toggleToDo(id: string, completed: boolean): void {
+    setToDos((currentToDos: Todo[]) => {
       return currentToDos.map(todo => {
         if (todo.id === id)
           return { ...todo, completed }
         return todo
-      })
-    })
+      });
+    });
   }
-  function deleteToDo(id) {
-    setToDos(currentToDos => {
-      return currentToDos.filter(todo => todo.id !== id)
-    })
+
+  function deleteToDo(id: string): void {
+    setToDos((currentToDos: Todo[]) => {
+      return currentToDos.filter(todo => todo.id !== id);
+    });
   }
   return (
     <>
